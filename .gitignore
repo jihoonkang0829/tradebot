@@ -76,6 +76,7 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+.ipynb
 
 # IPython
 profile_default/
@@ -128,5 +129,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Credentials
-credentials.py
+# Assets
+assets/
