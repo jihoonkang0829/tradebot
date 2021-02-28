@@ -1,8 +1,12 @@
 {
+<<<<<<< HEAD
     "python.pythonPath": "/Library/Frameworks/Python.framework/Versions/3.7/bin/python3",
     "jupyter.jupyterServerType": "local",
     "liveshare.allowGuestDebugControl": true,
     "liveshare.allowInvites": "all",
     "liveshare.increasedGuestLimit": false,
     "liveshare.notebooks.allowGuestExecuteCells": true
+=======
+    "jupyter.jupyterServerType": "local"
+>>>>>>> 3c43995e730667af387b1cafe1774e8e559e3653
 }
