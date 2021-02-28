@@ -1,4 +1,8 @@
 {
     "python.pythonPath": "/Library/Frameworks/Python.framework/Versions/3.7/bin/python3",
-    "jupyter.jupyterServerType": "local"
+    "jupyter.jupyterServerType": "local",
+    "liveshare.allowGuestDebugControl": true,
+    "liveshare.allowInvites": "all",
+    "liveshare.increasedGuestLimit": false,
+    "liveshare.notebooks.allowGuestExecuteCells": true
 }
