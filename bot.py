@@ -128,7 +128,7 @@ class Bot:
 
 
 
-    # def receive_decision(self):
-    #     return self.decision
+    # # def receive_decision(self):
+    # #     return self.decision
 
-    def make_order(self): 
+    # def make_order(self): 
