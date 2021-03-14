@@ -64,7 +64,7 @@ class Bot:
             self.bsm.start()
             return
         
-        self.decision = algo(current_data, balance)
+        self.decision = algo(self.cur_price, self.balance)
         #{timestamp, symbol, action, leverage, price_type, price, quantity}
     def make_order(self):
         if int(time.time()*1000) - self.decision['timestamp']  > self.deltatime:
