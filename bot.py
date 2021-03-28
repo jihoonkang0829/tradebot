@@ -1,4 +1,5 @@
 from assets.algo import algo
+from functions import *
 from binance.client import Client
 from binance.exceptions import BinanceAPIException, BinanceOrderException
 from binance.websockets import BinanceSocketManager
@@ -52,7 +53,7 @@ class Bot:
         # client get current balance 
         while(True):
             try:
-                self.position = str(self.client.futures_position_information(symbol = self.symbol))
+                self.position = dict(self.client.futures_position_information(symbol = self.symbol)[0])
                 self.balance = float(self.client.futures_account_balance()[0]['balance'])
                 break
             except:
@@ -64,7 +65,11 @@ class Bot:
             self.bsm.start()
             return
         
-        self.decision = algo(self.cur_price, self.balance)
+        # self.cir_price: float
+        # self.balance: float
+        # self.position: 
+        self.position = convert_dict_value_type(self.position, 'float')
+        self.decision = algo(self.cur_price, self.balance, self.position)
         #{timestamp, symbol, action, leverage, price_type, price, quantity}
     def make_order(self):
         if int(time.time()*1000) - self.decision['timestamp']  > self.deltatime:

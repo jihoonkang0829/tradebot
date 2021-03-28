@@ -1,1 +1,3 @@
+# Algo/Bot
 LEVERAGE_AMOUNT = 21
+LOOKBACK = 15
