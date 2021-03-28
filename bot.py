@@ -44,7 +44,7 @@ class Bot:
         else:
             self.socket_error = True
 
-    def feed_data(self):
+    def feed_data(self, test : bool, False):
         if self.begin == True:
             self.start_socket()
 
@@ -71,7 +71,7 @@ class Bot:
         self.position = convert_dict_value_type(self.position, 'float')
         self.decision = algo(self.cur_price, self.balance, self.position)
         #{timestamp, symbol, action, leverage, price_type, price, quantity}
-    def make_order(self):
+    def make_order(self, test : bool = False):
         if int(time.time()*1000) - self.decision['timestamp']  > self.deltatime:
             return
         if self.decision['action'] == 2:

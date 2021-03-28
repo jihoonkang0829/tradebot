@@ -1,18 +1,15 @@
 from bot import Bot
+from assets.credentials import *
 
 
 
-# client
-# trader = new bot()
-# while (True):
-#     client.receive_realtime_price
-#     trader.feed_data
-#     trader.receive_decision
-#     if buy:
-#         client.buy
-#     elif sell:
-#         client.sell
+trader = Bot(BINANCE_KEY, BIANCE_SECRET, 'BTCUSD', 1000)
 
-# trader = bot(key, secret_key)
+while (True):
+    trader.feed_data(test = True)
+    trader.make_order(test = True)
+
+
+trader = bot(key, secret_key)
 while True():
     trader.feed_data()
