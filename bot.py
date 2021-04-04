@@ -5,11 +5,8 @@ from binance.client import Client
 from binance.exceptions import BinanceAPIException, BinanceOrderException
 from binance.websockets import BinanceSocketManager
 from time import sleep
-import time
 import pandas as pd
 
-# Model import
-from assets.model import RNNClassifier
 
 class Bot:
     def __init__(self, key, secret_key, symbol, deltatime, algodelay, test = False): 
@@ -22,8 +19,12 @@ class Bot:
         self.balance = 0
         self.deltatime = deltatime
         self.algodelay = algodelay
-        self.prev_algo_execute = time.time()
+
+        # test attributes
+        self.prev_algo_execute = 0
         self.test = test
+        self.pos_start_price = 0
+
         if not self.test:
             self.start_socket()
             while True:
@@ -40,6 +41,7 @@ class Bot:
         else:
             self.test_data = pd.read_csv(ASSETS_DIR + 'BTCUSDTMIN.csv')
             self.test_index = 0
+            self.balance = TEST_INITIAL_BALANCE
 
     def start_socket(self):
         # start socket and save the key
@@ -56,11 +58,12 @@ class Bot:
         else:
             self.socket_error = True
 
+
     def feed_data(self):
         # In Deploy mode
         if not self.test:
-            if time.time() - self.algodelay > self.prev_algo_execute:
-                self.prev_algo_execute = time.time()
+            if curtime() - self.algodelay > self.prev_algo_execute:
+                self.prev_algo_execute = curtime()
                 while(True):
                     try:
                         self.position = dict(self.client.futures_position_information(symbol = self.symbol)[0])
@@ -74,76 +77,83 @@ class Bot:
                     self.bsm.stop_socket(self.conn_key)
                     self.bsm.start()
                     return
+                self.position = convert_dict_value_type(self.position, 'float')
+                self.decision = algo(self.cur_price, self.balance, self.position)
             
         # In Test mode
         else:
             self.cur_price = self.test_data.iloc[self.test_index, :]['']
             self.position = self.decision
+            self.decision = algo(self.cur_price, self.balance, self.position)
 
-            # self.cir_price: float
-            # self.balance: float
-            # self.position: dict
-        self.position = convert_dict_value_type(self.position, 'float')
-        self.decision = algo(self.cur_price, self.balance, self.position)
+        
         #{timestamp, symbol, action, leverage, price_type, price, quantity}
-    def make_order(self, test : bool = False):
-        # convert time.time sec to milisec
-        if int(time.time()*1000) - self.decision['timestamp']  > self.deltatime:
-            return
-        if self.decision['action'] == 2:
-            return
-        if self.decision['action'] == 0:
-            # if "BUY"
-            if self.decision['price_type'] == "MARKET":
-                while True:
-                    try:
-                        self.client.futures_change_leverage(symbol = self.symbol, leverage = self.decision['leverage'])
-                        self.client.futures_create_order(symbol = self.symbol, side = "BUY", type = "MARKET",quantity= self.decision['quantity'])
-                        break
-                    except BinanceAPIException as e:
-                        print(e, "leverage api")
-                        pass
-                    except BinanceOrderException as e:
-                        print(e, "leverage order")
-                        pass            
-            elif self.decision['price_type'] == "LIMIT":
-                while True:
-                    try:
-                        self.client.futures_change_leverage(symbol = self.symbol, leverage = self.decision['leverage'])
-                        self.client.futures_create_order(symbol = self.symbol, side = "BUY", type = "LIMIT", price = self.decision['price'], quantity= self.decision['quantity'])
-                        break
-                    except BinanceAPIException as e:
-                        print(e, "leverage api")
-                        pass
-                    except BinanceOrderException as e:
-                        print(e, "leverage order")
-                        pass
-        elif self.decision['action'] == 1:
-            # if "SELL"
-            if self.decision['price_type'] == "MARKET":
-                while True:
-                    try:
-                        self.client.futures_change_leverage(symbol = self.symbol, leverage = self.decision['leverage'])
-                        self.client.futures_create_order(symbol = self.symbol, side = "SELL", type = "MARKET", quantity= self.decision['quantity'])
-                        break
-                    except BinanceAPIException as e:
-                        print(e, "leverage api")
-                        pass
-                    except BinanceOrderException as e:
-                        print(e, "leverage order")
-                        pass            
-            elif self.decision['price_type'] == "LIMIT":
-                while True:
-                    try:
-                        self.client.futures_change_leverage(symbol = self.symbol, leverage = self.decision['leverage'])
-                        self.client.futures_create_order(symbol = self.symbol, side = "SELL", type = "LIMIT", price = self.decision['price'], quantity= self.decision['quantity'])
-                        break
-                    except BinanceAPIException as e:
-                        print(e, "leverage api")
-                        pass
-                    except BinanceOrderException as e:
-                        print(e, "leverage order")
-                        pass   
+    def make_order(self):
+        if not self.test:
+            # convert time.time sec to millisec
+            if curtime() - self.decision['timestamp']  > self.deltatime:
+                return
+            if self.decision['action'] == 2:
+                return
+            if self.decision['action'] == 0:
+                if self.decision['price_type'] == "MARKET":
+                    while True:
+                        try:
+                            self.client.futures_change_leverage(symbol = self.symbol, leverage = self.decision['leverage'])
+                            self.client.futures_create_order(symbol = self.symbol, side = "BUY", type = "MARKET",quantity= self.decision['quantity'])
+                            break
+                        except BinanceAPIException as e:
+                            print(e, "leverage api")
+                            pass
+                        except BinanceOrderException as e:
+                            print(e, "leverage order")
+                            pass            
+                elif self.decision['price_type'] == "LIMIT":
+                    while True:
+                        try:
+                            self.client.futures_change_leverage(symbol = self.symbol, leverage = self.decision['leverage'])
+                            self.client.futures_create_order(symbol = self.symbol, side = "BUY", type = "LIMIT", price = self.decision['price'], quantity= self.decision['quantity'])
+                            break
+                        except BinanceAPIException as e:
+                            print(e, "leverage api")
+                            pass
+                        except BinanceOrderException as e:
+                            print(e, "leverage order")
+                            pass
+            elif self.decision['action'] == 1:
+                if self.decision['price_type'] == "MARKET":
+                    while True:
+                        try:
+                            self.client.futures_change_leverage(symbol = self.symbol, leverage = self.decision['leverage'])
+                            self.client.futures_create_order(symbol = self.symbol, side = "SELL", type = "MARKET", quantity= self.decision['quantity'])
+                            break
+                        except BinanceAPIException as e:
+                            print(e, "leverage api")
+                            pass
+                        except BinanceOrderException as e:
+                            print(e, "leverage order")
+                            pass            
+                elif self.decision['price_type'] == "LIMIT":
+                    while True:
+                        try:
+                            self.client.futures_change_leverage(symbol = self.symbol, leverage = self.decision['leverage'])
+                            self.client.futures_create_order(symbol = self.symbol, side = "SELL", type = "LIMIT", price = self.decision['price'], quantity= self.decision['quantity'])
+                            break
+                        except BinanceAPIException as e:
+                            print(e, "leverage api")
+                            pass
+                        except BinanceOrderException as e:
+                            print(e, "leverage order")
+                            pass 
+
+        # TODO: Update test mode balance calculation logic
+        else:
+            if self.decision['action'] != 2:
+                self.balance = test_update_balance_start_position()
+                self.pos_start_price = self.cur_price
+            else:
+                self.balance = test_update_balance_end_position(self.balance, self.decision['action'], )
+
     def safe_exit(self):
         self.feed_data()
 

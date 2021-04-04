@@ -7,3 +7,4 @@ LOOKBACK = 15
 
 # General
 ASSETS_DIR = './assets/'
+TEST_INITIAL_BALANCE = 100

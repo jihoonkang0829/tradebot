@@ -1,4 +1,6 @@
+import time
 import math
+import numpy as np
 
 def convert_dict_value_type(d: dict, type_str: str) -> dict:
     """
@@ -53,3 +55,30 @@ def round_decimals_down(number:float, decimals:int=3) -> float:
 
     factor = 10 ** decimals
     return math.floor(number * factor) / factor
+
+def curtime():
+    """
+    Returns current time in milliseconds
+    """
+    return time.time() * 1000
+
+def test_update_balance_start_position():
+    return 0
+
+def test_update_balance_end_position(cur_balance, pos_decision, pos_start_price, pos_end_price, pos_amount, lev_amount):
+    assert pos_decision in [0, 1, 2]
+
+    abs_delta = np.abs(pos_end_price - pos_start_price) * pos_amount * lev_amount
+    if pos_decision == 0:
+        if pos_end_price - pos_start_price > 0:
+            return cur_balance + abs_delta
+        else:
+            return max(0, cur_balance - abs_delta)
+    elif pos_decision == 1:
+        if pos_end_price - pos_start_price < 0:
+            return cur_balance + abs_delta
+        else:
+            return max(0, cur_balance - abs_delta)
+
+    else:
+        return cur_balance
