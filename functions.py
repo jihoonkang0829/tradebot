@@ -1,3 +1,5 @@
+import math
+
 def convert_dict_value_type(d: dict, type_str: str) -> dict:
     """
     Function to convert the value type of the passed dictionary
@@ -37,3 +39,17 @@ def convert_dict_value_type(d: dict, type_str: str) -> dict:
         return {key : list(val) for key, val in d.items()}
 
     return d
+
+def round_decimals_down(number:float, decimals:int=3) -> float:
+    """
+    Returns a value rounded down to a specific number of decimal places.
+    """
+    if not isinstance(decimals, int):
+        raise TypeError("decimal places must be an integer")
+    elif decimals < 0:
+        raise ValueError("decimal places has to be 0 or more")
+    elif decimals == 0:
+        return math.floor(number)
+
+    factor = 10 ** decimals
+    return math.floor(number * factor) / factor
