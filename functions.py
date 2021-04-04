@@ -63,9 +63,15 @@ def curtime():
     return time.time() * 1000
 
 def test_update_balance_start_position():
+    """
+    Update test mode position start balance
+    """
     return 0
 
 def test_update_balance_end_position(cur_balance, pos_decision, pos_start_price, pos_end_price, pos_amount, lev_amount):
+    """
+    Update test mode position end balance
+    """
     assert pos_decision in [0, 1, 2]
 
     abs_delta = np.abs(pos_end_price - pos_start_price) * pos_amount * lev_amount
