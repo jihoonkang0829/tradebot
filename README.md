@@ -5,7 +5,7 @@ Tradebot is an automated futures trading program, based on a deep learning tradi
 The program implements [Python Binance API](https://python-binance.readthedocs.io/en/latest/).
 
 Requirements:
-* Python 3.7 <= (Python Binance API does not support Python 3.8 and above)
+* [Python 3.7](https://www.python.org) <= (Python Binance API does not support Python 3.8 and above)
 * [python-binance](https://python-binance.readthedocs.io/en/latest/)
 * [PyTorch](https://pytorch.org)
 * [NumPy](https://numpy.org)
