@@ -45,30 +45,39 @@ class Bot:
             self.socket_error = True
 
     def feed_data(self, test : bool, False):
-        if self.begin == True:
-            self.start_socket()
+        # In Deploy mode
+        if not test:
+            if self.begin == True:
+                self.start_socket()
 
-        # client get current data
-        # client get current position
-        # client get current balance 
-        while(True):
-            try:
-                self.position = dict(self.client.futures_position_information(symbol = self.symbol)[0])
-                self.balance = float(self.client.futures_account_balance()[0]['balance'])
-                break
-            except:
-                pass
+            # client get current data
+            # client get current position
+            # client get current balance 
+            while(True):
+                try:
+                    self.position = dict(self.client.futures_position_information(symbol = self.symbol)[0])
+                    self.balance = float(self.client.futures_account_balance()[0]['balance'])
+                    break
+                except:
+                    pass
 
-        if self.socket_error:
-            self.socket_error = False
-            self.bsm.stop_socket(self.conn_key)
-            self.bsm.start()
-            return
+            if self.socket_error:
+                self.socket_error = False
+                self.bsm.stop_socket(self.conn_key)
+                self.bsm.start()
+                return
+            
+
+        # In Test mode
+        else:
+            
+
+            # self.cir_price: float
+            # self.balance: float
+            # self.position: dict
+            self.position = convert_dict_value_type(self.position, 'float')
+
         
-        # self.cir_price: float
-        # self.balance: float
-        # self.position: 
-        self.position = convert_dict_value_type(self.position, 'float')
         self.decision = algo(self.cur_price, self.balance, self.position)
         #{timestamp, symbol, action, leverage, price_type, price, quantity}
     def make_order(self, test : bool = False):
@@ -127,7 +136,10 @@ class Bot:
                         pass
                     except BinanceOrderException as e:
                         print(e, "leverage order")
-                        pass                     
+                        pass   
+    def safe_exit(self):
+        if self.position['positionSide'] == 'BOTH':
+            return
 
         
 
