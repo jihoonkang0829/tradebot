@@ -1,5 +1,5 @@
 from constants import ASSETS_DIR
-from assets.algo import *
+from algo import *
 from functions import *
 from binance.client import Client
 from binance.exceptions import BinanceAPIException, BinanceOrderException
