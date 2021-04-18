@@ -4,21 +4,28 @@ import signal
 import sys
 import time
 
+import torch
+from constants import * 
+from assets.gru import GRU
 
 
+# trader = Bot(BINANCE_KEY, BINANCE_SECRET, 'BTCUSD', 1000, 60000)
 
-trader = Bot(BINANCE_KEY, BIANCE_SECRET, 'BTCUSD', 1000, 60000)
+# def signal_handler(sig, frame):
+#     trader.safe_exit()
+#     sys.exit(0)
 
-def signal_handler(sig, frame):
-    trader.safe_exit()
-    sys.exit(0)
+# signal.signal(signal.SIGINT, signal_handler)
 
-signal.signal(signal.SIGINT, signal_handler)
+# test = True
+# while (True):
+#     trader.feed_data(test = test)
+#     trader.make_order(test = test)
 
-
-while (True):
-    # trader.feed_data(test = True)
-    # trader.make_order(test = True)
-    print("wait")
-    time.sleep(1)
-
+#     if test and trader.test_end_signal:
+#         break
+device = torch.device('cpu')
+model = GRU(INPUT_DIM, HIDDEN_DIM, NUM_LAYERS, OUTPUT_DIM)
+model.load_state_dict(torch.load(ASSETS_DIR + 'gru_classification_model.pt', map_location=device))
+model.eval()
+print('success')

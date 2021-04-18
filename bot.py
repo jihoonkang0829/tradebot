@@ -15,7 +15,13 @@ class Bot:
         self.symbol = str(symbol)
         self.cur_price = 0
         self.socket_error = None
-        self.position = 0
+        self.position =  dict({'timestamp' : time.time(),
+                                'symbol'     : symbol,
+                                'action'     : 2,
+                                'leverage'   : 1,
+                                'price_type' : 'MKTPC',
+                                'price'      : None,
+                                'quantity'   : None})
         self.balance = 0
         self.deltatime = deltatime
         self.algodelay = algodelay
@@ -24,6 +30,8 @@ class Bot:
         self.prev_algo_execute = 0
         self.test = test
         self.pos_start_price = 0
+        self.has_position = False
+        self.test_end_signal = False
 
         if not self.test:
             self.start_socket()
@@ -38,6 +46,8 @@ class Bot:
                 except BinanceOrderException as e:
                     print(e, "curpos")
                     pass
+
+        # Test mode
         else:
             self.test_data = pd.read_csv(ASSETS_DIR + 'BTCUSDTMIN.csv')
             self.test_index = 0
@@ -82,7 +92,11 @@ class Bot:
             
         # In Test mode
         else:
-            self.cur_price = self.test_data.iloc[self.test_index, :]['']
+            if self.test_index == len(self.test_data):
+                self.test_end_signal = True
+                
+            self.cur_price = self.test_data.iloc[self.test_index, :]['open']
+            self.test_index += 1
             self.position = self.decision
             self.decision = algo(self.cur_price, self.balance, self.position)
 
@@ -148,11 +162,20 @@ class Bot:
 
         # TODO: Update test mode balance calculation logic
         else:
-            if self.decision['action'] != 2:
+            if self.decision['action'] != 2 and not self.has_position:
                 self.balance = test_update_balance_start_position()
                 self.pos_start_price = self.cur_price
-            else:
-                self.balance = test_update_balance_end_position(self.balance, self.decision['action'], )
+                self.has_position = True
+                self.position = self.decision
+            elif self.decision['action'] != 2 and self.has_position and self.position['action'] != self.decision['action']:
+                self.balance = test_update_balance_end_position(self.balance, 
+                                                                self.decision['action'], 
+                                                                self.pos_start_price, 
+                                                                self.cur_price, 
+                                                                self.decision['quantity'], 
+                                                                self.decision['leverage'])
+                self.has_position = False
+                print(self.balance)
 
     def safe_exit(self):
         self.feed_data()
