@@ -1,6 +1,8 @@
+from constants import KLINES_VALID_INTERVALS
 import time
 import math
 import numpy as np
+import datetime
 
 def convert_dict_value_type(d: dict, type_str: str) -> dict:
     """
@@ -88,3 +90,44 @@ def test_update_balance_end_position(cur_balance, pos_decision, pos_start_price,
 
     else:
         return cur_balance
+
+# Data retrieving modules
+
+def get_klines_data(client, symbol, start, end, interval):
+    if interval not in KLINES_VALID_INTERVALS:
+        print('Input interval is not valid.')
+        return None
+
+    def str_or_datetime(dt):
+        return isinstance(dt, str) or isinstance(dt, datetime.datetime)
+
+    def todatetime(dt):
+        if isinstance(dt, datetime.datetime):
+            return dt
+
+        return datetime.datetime.strptime(dt, '%Y-%m-%d')
+
+    if not str_or_datetime(start):
+        print('start datetime is not valid')
+        return None
+
+    if not str_or_datetime(end):
+        print('end datetime is not valid')
+        return None
+
+    start, end = todatetime(start), todatetime(end)
+
+    if start > end:
+        print('start date must be earlier than end date')
+        return None
+
+    if end > datetime.datetime.now():
+        print('end date must be earlier than current time')
+        return None
+
+    return client.futures_klines(symbol = symbol,
+                                interval = interval,
+                                startTime = start,
+                                endTime = end)
+
+    
