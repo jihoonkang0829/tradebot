@@ -134,4 +134,8 @@ assets/
 
 # VS Code
 .vscode/
+
+# Custom
 algo.py
+*.png
+*.txt
