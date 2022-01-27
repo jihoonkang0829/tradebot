@@ -1,6 +1,6 @@
 from constants import ASSETS_DIR
 from algo import *
-from functions import *
+from utils import *
 from binance.client import Client
 from binance.exceptions import BinanceAPIException, BinanceOrderException
 from binance.websockets import BinanceSocketManager
