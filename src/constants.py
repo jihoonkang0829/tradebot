@@ -1,6 +1,3 @@
-import torch
-from assets.model import RNNClassifier
-
 # Algo/Bot
 LEVERAGE_AMOUNT = 21
 LOOKBACK = 15
@@ -18,6 +15,4 @@ INPUT_DIM = 1
 HIDDEN_DIM = 32
 NUM_LAYERS = 2
 OUTPUT_DIM = 3
-
-DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 

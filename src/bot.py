@@ -6,11 +6,18 @@ from binance.exceptions import BinanceAPIException, BinanceOrderException
 from binance.websockets import BinanceSocketManager
 from time import sleep
 import pandas as pd
+import os
 
 
 class Bot:
-    def __init__(self, key, secret_key, symbol, deltatime, algodelay, test = False): 
-        self.client = Client(api_key=key, api_secret=secret_key)
+    def __init__(self, symbol, deltatime, algodelay, test = False, api_key = "", api_secret = ""): 
+
+        if api_key == "" or api_secret == "":
+            self.initialize()
+        else:
+            self.initialize(api_key, api_secret)
+
+        self.client = Client(api_key=api_key, api_secret=api_secret)
         self.decision = None
         self.symbol = str(symbol)
         self.cur_price = 0
@@ -53,8 +60,19 @@ class Bot:
             self.test_index = 0
             self.balance = TEST_INITIAL_BALANCE
 
+    def initialize(self, api_key : str, api_secret : str):
+        self.client = Client(api_key, api_secret)
+
+    def initialize(self):
+        api_key = os.getenv('BINANCE_KEY')
+        api_secret = os.getenv('BINANCE_SECRET')
+        if api_key == '' or api_secret == '':
+            print("Please set BINANCE_KEY and BINANCE_SECRET environment variables")
+            exit(1)
+        self.client = Client(api_key, api_secret)
+
     def start_socket(self):
-        # start socket and save the key
+        # start socket and save the api_key
         self.bsm = BinanceSocketManager(self.client)
         self.conn_key = self.bsm.start_symbol_ticker_futures_socket(self.symbol, self.btc_pairs_trade)
         self.bsm.start()

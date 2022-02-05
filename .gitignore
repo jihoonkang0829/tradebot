@@ -139,3 +139,6 @@ assets/
 algo.py
 *.png
 *.txt
+
+src/client.py
+src/client_oig.py

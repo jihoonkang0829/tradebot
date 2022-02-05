@@ -2,11 +2,7 @@ from bot import Bot
 from assets.credentials import *
 import signal
 import sys
-import time
-
-import torch
 from constants import * 
-from assets.gru import GRU
 
 
 trader = Bot(BINANCE_KEY, BINANCE_SECRET, 'BTCUSD', 1000, 60000)
